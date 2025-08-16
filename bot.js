@@ -1,3 +1,5 @@
+const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require("@adiwajshing/baileys");
+const P = require('pino');
 /* Copyright (C) 2020 Yusuf Usta.
 
 Licensed under the  GPL-3.0 License;
@@ -741,3 +743,27 @@ ${chalk.blue.italic('ℹ️ Connecting to WhatsApp... Please Wait.')}`);
 }
 
 whatsAsena();
+async function startBot() {
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+    const { version } = await fetchLatestBaileysVersion();
+    const sock = makeWASocket({
+        version,
+        printQRInTerminal: true,
+        auth: state,
+        logger: P({ level: 'silent' })
+    });
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection } = update;
+        if(connection === 'open') console.log('WhatsApp bot connected!');
+    });
+
+    sock.ev.on('messages.upsert', async (m) => {
+        console.log('Gələn mesaj:', m);
+        // Burada mövcud bot funksiyalarınızla cavab verə bilərsiniz
+    });
+
+    sock.ev.on('creds.update', saveCreds);
+}
+
+startBot();
