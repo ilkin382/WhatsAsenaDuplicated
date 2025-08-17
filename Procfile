@@ -1,1 +1,1 @@
-worker: node bot.js
+worker: node whatsasena/bot.js
